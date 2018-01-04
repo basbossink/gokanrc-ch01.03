@@ -13,10 +13,11 @@ func TestTableGenaration(t *testing.T) {
 	GenerateTable(0.0, 12.0, 3.0, "a\n", "b\n", &buf, identity)
 	output := buf.String()
 	lines := strings.Split(output, "\n")
-	if len(lines) != 6 {
+	const expectedNumberOfLines = 7
+	if len(lines) != expectedNumberOfLines {
 		t.Fatalf(
 			"TestTableGeneration: Expected output to have #[%v] lines but got #[%v] lines, output was \n%v",
-			5,
+			expectedNumberOfLines,
 			len(lines),
 			output)
 	}

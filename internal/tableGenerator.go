@@ -15,7 +15,7 @@ func GenerateTable(
 	conversion TemperatureConversion) {
 	fromTemp := lower
 	fmt.Fprintf(writer, header)
-	for fromTemp < upper {
+	for fromTemp <= upper {
 		toTemp := conversion(fromTemp)
 		fmt.Fprintf(writer, rowFormat, fromTemp, toTemp)
 		fromTemp += step
