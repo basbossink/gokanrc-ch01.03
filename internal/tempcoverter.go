@@ -12,5 +12,5 @@ func ConvertCelsiusToFahrenheit(celsius float64) float64 {
 }
 
 func ConvertFahrenheitToCelsius(fahrenheit float64) float64 {
-	return 0.0
+	return (fahrenheit - zeroCelsiusInFahrenheit) * fahrenheitToCelsiusScalingFactor
 }
