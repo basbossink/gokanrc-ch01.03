@@ -7,10 +7,12 @@ import (
 
 const epsilon = 1e-5
 
-var celsiusToFahrenheitTests = []struct {
-	celsius            float64
-	expectedFahrenheit float64
-}{
+type temperaturePair = struct {
+	celsius    float64
+	fahrenheit float64
+}
+
+var testCases = []temperaturePair{
 	{0.0, 32.0},
 	{5.0 / 9.0, 33.0},
 	{5.0, 41.0},
@@ -20,43 +22,38 @@ var celsiusToFahrenheitTests = []struct {
 	{35.0, 95.0},
 }
 
-func TestCelsiusToFahrenheitConversion(t *testing.T) {
-	for _, tt := range celsiusToFahrenheitTests {
-		actual := ConvertCelsiusToFahrenheit(tt.celsius)
-		if epsilon < math.Abs(actual-tt.expectedFahrenheit) {
+func runTests(t *testing.T,
+	sutName string,
+	sut TemperatureConversion,
+	inputSelector func(temperaturePair) float64,
+	expectedSelector func(temperaturePair) float64) {
+	for _, tt := range testCases {
+		input := inputSelector(tt)
+		expected := expectedSelector(tt)
+		actual := sut(input)
+		if epsilon < math.Abs(actual-expected) {
 			t.Fatalf(
-				"ConvertCelsiusToFahrenheit(%v). Expected [%v], Actual [%v]",
-				tt.celsius,
-				tt.expectedFahrenheit,
+				"%v(%v). Expected [%v], Actual [%v]",
+				sutName,
+				input,
+				expected,
 				actual)
 		}
-
 	}
 }
 
-var fahrenheitToCelsiusTests = []struct {
-	fahrenheit      float64
-	expectedCelsius float64
-}{
-	{32.0, 0.0},
-	{33.0, 5.0 / 9.0},
-	{41.0, 5.0},
-	{23.0, -5.0},
-	{50.0, 10.0},
-	{59.0, 15.0},
-	{95.0, 35.0},
+func TestCelsiusToFahrenheitConversion(t *testing.T) {
+	runTests(t,
+		"CelsiusToFahrenheit",
+		ConvertCelsiusToFahrenheit,
+		func(p temperaturePair) float64 { return p.celsius },
+		func(p temperaturePair) float64 { return p.fahrenheit })
 }
 
 func TestFahrenheitToCelsiusConversion(t *testing.T) {
-	for _, tt := range fahrenheitToCelsiusTests {
-		actual := ConvertFahrenheitToCelsius(tt.fahrenheit)
-		if epsilon < math.Abs(actual-tt.expectedCelsius) {
-			t.Fatalf(
-				"ConvertFahrenheitToCelsius(%v). Expected [%v], Actual [%v]",
-				tt.fahrenheit,
-				tt.expectedCelsius,
-				actual)
-		}
-
-	}
+	runTests(t,
+		"FahrenheitToCelsius",
+		ConvertFahrenheitToCelsius,
+		func(p temperaturePair) float64 { return p.fahrenheit },
+		func(p temperaturePair) float64 { return p.celsius })
 }
