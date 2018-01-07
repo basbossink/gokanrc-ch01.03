@@ -3,6 +3,7 @@ package internal
 import (
 	"math"
 	"testing"
+	"testing/quick"
 )
 
 const epsilon = 1e-5
@@ -22,6 +23,10 @@ var testCases = []temperaturePair{
 	{35.0, 95.0},
 }
 
+func approximatelyEqual(actual, expected float64) bool {
+	return math.Abs(actual-expected) < epsilon
+}
+
 func runTests(t *testing.T,
 	sutName string,
 	sut TemperatureConversion,
@@ -31,7 +36,7 @@ func runTests(t *testing.T,
 		input := inputSelector(tt)
 		expected := expectedSelector(tt)
 		actual := sut(input)
-		if epsilon < math.Abs(actual-expected) {
+		if !approximatelyEqual(actual, expected) {
 			t.Fatalf(
 				"%v(%v). Expected [%v], Actual [%v]",
 				sutName,
@@ -56,4 +61,14 @@ func TestFahrenheitToCelsiusConversion(t *testing.T) {
 		ConvertFahrenheitToCelsius,
 		func(p temperaturePair) float64 { return p.fahrenheit },
 		func(p temperaturePair) float64 { return p.celsius })
+}
+
+func TestConversionBackAndForth(t *testing.T) {
+	f := func(randomInput float64) bool {
+		converted := ConvertCelsiusToFahrenheit(ConvertFahrenheitToCelsius(randomInput))
+		return approximatelyEqual(converted, randomInput)
+	}
+	if err := quick.Check(f, &quick.Config{MaxCountScale: 1e-3}); err != nil {
+		t.Error(err)
+	}
 }
